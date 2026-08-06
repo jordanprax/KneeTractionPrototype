@@ -1,30 +1,46 @@
 #include <Arduino.h>
+#include <AccelStepper.h>
 
+// Pin definitions
 const int STEP_PIN = 18;
 const int DIR_PIN  = 19;
 const int EN_PIN   = 21;
 
-void setup() {
-    pinMode(STEP_PIN, OUTPUT);
-    pinMode(DIR_PIN, OUTPUT);
-    pinMode(EN_PIN, OUTPUT);
+// Create the stepper object
+AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
-    digitalWrite(EN_PIN, LOW);
-    digitalWrite(DIR_PIN, HIGH);
+bool movingForward = true;
+
+void setup()
+{
+    Serial.begin(115200);
+
+    pinMode(EN_PIN, OUTPUT);
+    digitalWrite(EN_PIN, LOW);   // Enable TMC2209
+
+    stepper.setMaxSpeed(1000);
+    stepper.setAcceleration(500);
+
+    stepper.moveTo(1000);
 }
 
-void loop() {
+void loop()
+{
+    stepper.run();
 
-    for (int i = 0; i < 200; i++) {
-        digitalWrite(STEP_PIN, HIGH);
-        delayMicroseconds(1000);
-        digitalWrite(STEP_PIN, LOW);
-        delayMicroseconds(1000);
+    if (stepper.distanceToGo() == 0)
+    {
+        delay(500);
+
+        if (movingForward)
+        {
+            stepper.moveTo(0);
+        }
+        else
+        {
+            stepper.moveTo(1000);
+        }
+
+        movingForward = !movingForward;
     }
-
-    delay(1000);
-
-    digitalWrite(DIR_PIN, !digitalRead(DIR_PIN));
-
-    delay(1000);
 }

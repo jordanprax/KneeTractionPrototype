@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <AccelStepper.h>
+#include "MotorController.h"
 
 // Pin definitions
 const int STEP_PIN = 18;
@@ -7,38 +7,31 @@ const int DIR_PIN  = 19;
 const int EN_PIN   = 21;
 
 // Create the stepper object
-AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
+KneeTraction::MotorController motor(STEP_PIN, DIR_PIN, EN_PIN);
 
 bool movingForward = true;
 
 void setup()
 {
     Serial.begin(115200);
-
-    pinMode(EN_PIN, OUTPUT);
-    digitalWrite(EN_PIN, LOW);   // Enable TMC2209
-
-    stepper.setMaxSpeed(1000);
-    stepper.setAcceleration(500);
-
-    stepper.moveTo(1000);
+    motor.moveForward();
 }
 
 void loop()
 {
-    stepper.run();
+    motor.run();
 
-    if (stepper.distanceToGo() == 0)
+    if (motor.distanceToGo() == 0)
     {
         delay(500);
 
         if (movingForward)
         {
-            stepper.moveTo(0);
+            motor.moveTo(0);
         }
         else
         {
-            stepper.moveTo(1000);
+            motor.moveTo(1000);
         }
 
         movingForward = !movingForward;

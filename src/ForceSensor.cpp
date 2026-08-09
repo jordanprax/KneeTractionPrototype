@@ -7,6 +7,7 @@ namespace KneeTraction
         loadCell.begin(dataPin, clockPin);
 
         calibrationFactor = 39570.88;
+        currentForce = 0.0;
     }
 
     void ForceSensor::begin()
@@ -17,10 +18,19 @@ namespace KneeTraction
     void ForceSensor::tare()
     {
         loadCell.tare();
+        currentForce = 0.0;
+    }
+
+    void ForceSensor::update()
+    {
+        if (loadCell.is_ready())
+        {
+            currentForce = loadCell.get_units(1);
+        }
     }
 
     float ForceSensor::getForce()
     {
-        return loadCell.get_units(10);
+        return currentForce;
     }
 }

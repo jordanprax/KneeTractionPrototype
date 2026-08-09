@@ -12,11 +12,14 @@ namespace KneeTraction
 
         void begin();
         void tare();
+        void update();
         float getForce();
 
     private:
         HX711 loadCell;
+
         float calibrationFactor;
+        float currentForce;
     };
 }
 

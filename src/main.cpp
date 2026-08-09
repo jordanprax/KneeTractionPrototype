@@ -1,38 +1,31 @@
 #include <Arduino.h>
-#include <HX711.h>
+#include "ForceSensor.h"
 
 // HX711 pins
 const int HX711_DOUT_PIN = 13;
 const int HX711_SCK_PIN = 12;
 
-// Create the HX711 object
-HX711 loadCell;
+// Create the force sensor object
+KneeTraction::ForceSensor forceSensor(HX711_DOUT_PIN, HX711_SCK_PIN);
 
 void setup()
 {
     Serial.begin(115200);
 
-    loadCell.begin(HX711_DOUT_PIN, HX711_SCK_PIN);
+    forceSensor.begin();
 
-    Serial.println("HX711 test starting...");
+    Serial.println("Force sensor starting...");
 
-    loadCell.tare();
+    forceSensor.tare();
 
     Serial.println("Tare complete.");
 }
 
 void loop()
 {
-    if (loadCell.is_ready())
-    {
-        long reading = loadCell.read_average(10);
+    float force = forceSensor.getForce();
 
-        Serial.println(reading);
-    }
-    else
-    {
-        Serial.println("HX711 not ready");
-    }
+    Serial.println(force, 2);
 
     delay(200);
 }

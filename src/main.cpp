@@ -1,39 +1,38 @@
 #include <Arduino.h>
-#include "MotorController.h"
+#include <HX711.h>
 
-// Pin definitions
-const int STEP_PIN = 18;
-const int DIR_PIN  = 19;
-const int EN_PIN   = 21;
+// HX711 pins
+const int HX711_DOUT_PIN = 13;
+const int HX711_SCK_PIN = 12;
 
-// Create the stepper object
-KneeTraction::MotorController motor(STEP_PIN, DIR_PIN, EN_PIN);
-
-bool movingForward = true;
+// Create the HX711 object
+HX711 loadCell;
 
 void setup()
 {
     Serial.begin(115200);
-    motor.moveForward();
+
+    loadCell.begin(HX711_DOUT_PIN, HX711_SCK_PIN);
+
+    Serial.println("HX711 test starting...");
+
+    loadCell.tare();
+
+    Serial.println("Tare complete.");
 }
 
 void loop()
 {
-    motor.run();
-
-    if (motor.distanceToGo() == 0)
+    if (loadCell.is_ready())
     {
-        delay(500);
+        long reading = loadCell.read_average(10);
 
-        if (movingForward)
-        {
-            motor.moveTo(0);
-        }
-        else
-        {
-            motor.moveTo(1000);
-        }
-
-        movingForward = !movingForward;
+        Serial.println(reading);
     }
+    else
+    {
+        Serial.println("HX711 not ready");
+    }
+
+    delay(200);
 }
